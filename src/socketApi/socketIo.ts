@@ -10,20 +10,24 @@ const socketIoConfig = (server: http.Server | https.Server) => {
     },
   });  
 
-  let users: user[] = [];
+  const users: userInterface[] = [];
+  const rooms: roomInterface[] = []
 
-  const getUser:getUser = (userID: String | String[]) => {
+  const getUser:getUser = (userID: String) => {
     const user = users.find(({ id }) => id === userID);
     return user;
-  };
+  };  
 
-  const setUsername:setUsername = (userID: String | String[], name: String | undefined) => {
-    const userIndex = users.findIndex(({ id }) => userID === id)
-    users[userIndex].name = name
+  const createUser: createUser = (userID, name) => {
+    const user: userInterface = { name, id: userID }
+    users.push(user)
+    console.log(users)
+    return user
   }
 
-  io.on("connection", (socket: Socket) => {    
-    handlers(io, socket, users, getUser, setUsername);
+  io.on("connection", (socket) => {    
+    handlers(io, socket, getUser, users, rooms, createUser);
+    console.log('User connected')
   });
 };
 

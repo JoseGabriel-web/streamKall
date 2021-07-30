@@ -1,21 +1,25 @@
 import { Server, Socket } from "socket.io";
 
-const userHandler = (io: Server, socket: Socket, users: user[], setUsername:setUsername) => {
-  const connectUser = (name: String | undefined) => {
-    users.push({ name: name? name : 'user', id: socket.id });
-    console.log(users);
+const userHandler = (
+  io: Server,
+  socket: Socket,
+  users: userInterface[]
+) => {  
+
+  const setUsername:setUsername = (userID: String | String[], name: string) => {
+    const userIndex = users.findIndex(({ id }) => userID === id)
+    users[userIndex].name = name
+  } 
+
+  const renameUser = (name: string | undefined) => {
+    setUsername(socket.id, name ? name : "user");
   };
 
-  const renameUser = (name: String | undefined) => {
-    setUsername(socket.id, name? name : 'user')
-  }
-
-  const disconnect = (reason: String) => {
+  const disconnect = (reason: string) => {
     users = users.filter(({ id }) => id !== socket.id);
     console.log(users);
   };
 
-  socket.on("user:connect", connectUser);
   socket.on("user:rename", renameUser);
   socket.on("disconnect", disconnect);
 };

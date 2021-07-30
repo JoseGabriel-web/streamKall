@@ -6,12 +6,13 @@ import registerUserHandler from "./userHandler";
 const handlers = (
   io: Server,
   socket: Socket,
-  users: user[],
   getUser: getUser,
-  setUsername: setUsername,
-) => {
-  registerUserHandler(io, socket, users, setUsername);
-  registerRoomHandlers(io, socket, users, getUser);
+  users: userInterface[],
+  rooms: roomInterface[],
+  createUser: createUser,
+) => {  
+  registerUserHandler(io, socket, users);
+  registerRoomHandlers(io, socket, getUser, rooms, createUser);
   registerChatHandlers(io, socket, getUser);
 };
 

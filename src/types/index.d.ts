@@ -1,7 +1,19 @@
-interface user {
-  name: String | undefined;
-  id: String;
+interface userInterface {
+  name: string;
+  id: string;
 }
 
-type getUser = (userID: String | String[]) => user | undefined;
-type setUsername = (userID: String | String[], name: String | undefined) => void;
+interface roomInterface {
+  name: string,
+  participants: userInterface[]
+}
+
+interface messageInterface {
+  sender: string,
+  date: Date | number,
+  message: string
+}
+
+type createUser = (userID: string, name: string) => userInterface;
+type getUser = (userID: string) => userInterface | undefined;
+type setUsername = (userID: string, name: string) => void;
