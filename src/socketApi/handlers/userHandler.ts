@@ -3,7 +3,8 @@ import { Server, Socket } from "socket.io";
 const userHandler = (
   io: Server,
   socket: Socket,
-  users: userInterface[]
+  users: userInterface[],
+  removeUserById: removeUserById
 ) => {  
 
   const setUsername:setUsername = (userID: String | String[], name: string) => {
@@ -16,8 +17,8 @@ const userHandler = (
   };
 
   const disconnect = (reason: string) => {
-    users = users.filter(({ id }) => id !== socket.id);
-    console.log(users);
+    removeUserById(socket.id)
+    console.log('disconnecting message',users);
   };
 
   socket.on("user:rename", renameUser);
