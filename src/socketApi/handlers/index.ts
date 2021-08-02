@@ -11,7 +11,7 @@ const handlers = ({
   removeUserById
 }: socketHandlersInterface) => {  
   registerUserHandler(io, socket, users, removeUserById);
-  registerRoomHandlers(io, socket, getUser, createUser);
+  registerRoomHandlers(io, socket, getUser, createUser, removeUserById);
   registerChatHandlers(io, socket, getUser);
 };
 

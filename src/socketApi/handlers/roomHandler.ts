@@ -5,43 +5,49 @@ const roomHandler = (
   socket: Socket,
   getUser: getUser,
   createUser: createUser,
+  removeUserById: removeUserById,
 ) => {
-
-  const getRoomParticipants = async (room: string) => {
-    let participants: (userInterface | undefined)[] = []
-    let sockets = await io.of(room).in('general').allSockets()
-    sockets.forEach(socket => {
-      const participant = getUser(socket)
-      participants.push(participant)
-    })
-    return participants
+  const getRoomParticipants = () => {
+    let participants: (userInterface | undefined)[] = [];
+    let sockets = io.sockets.adapter.rooms.get(socket.data.currentRoom);
+    if (!sockets) return [];
+    sockets.forEach((socketID) => {
+      const participant = getUser(socketID);
+      participants.push(participant);
+    });
+    return participants;
   };
 
-  const getRoomInformation = async (roomName: string): Promise<roomInterface> => {
+  const getRoomInformation = (): roomInterface => {
     const roomInformation: roomInterface = {
-      name: roomName,
-      participants: await getRoomParticipants(roomName)
-    }
-    return roomInformation
-  }
+      name: socket.data.currentRoom,
+      participants: getRoomParticipants(),
+    };
+    return roomInformation;
+  };
 
-  const joinRoom = async ({ room, name }: { room: string; name: string }) => {
-    const user = createUser(socket.id, name);
+  const joinRoom = ({ room, name }: { room: string; name: string }) => {
+    createUser(socket.id, name);    
+    const user = getUser(socket.id);
+    if(!user) return
     const message: string = `${user.name} has joined the room.`;
     socket.join(room);
-    io.to(room).emit("room:information", await getRoomInformation(room))
+    socket.data.name = name;
+    socket.data.currentRoom = room;
+    const roomInformation = getRoomInformation();
+    io.to(room).emit("room:information", roomInformation);
     socket.to(room).emit("room:user-join", message);
   };
 
-  const leaveRoom = async ({ roomName }: { roomName: string }) => {
-    console.log("leaving room")
+  const leaveRoom = () => {
     const user = getUser(socket.id);
     if (!user) return;
     const message: string = `${user.name} has left the room.`;
-    socket.leave(roomName);
-    io.to(roomName).emit("room:information", await getRoomInformation(roomName))    
-    // io.to(roomName).emit("room:user-leave", message)
-    socket.to(roomName).emit("room:user-leave", message);
+    removeUserById(user.id);
+    socket.leave(socket.data.currentRoom);
+    const roomInformation = getRoomInformation();
+    io.to(socket.data.currentRoom).emit("room:information", roomInformation);
+    socket.to(socket.data.currentRoom).emit("room:user-leave", message);
   };
 
   socket.on("room:join", joinRoom);

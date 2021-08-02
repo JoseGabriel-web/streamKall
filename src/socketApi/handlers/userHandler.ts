@@ -3,22 +3,18 @@ import { Server, Socket } from "socket.io";
 const userHandler = (
   io: Server,
   socket: Socket,
-  users: userInterface[],
+  users: Map<String | string, userInterface>,
   removeUserById: removeUserById
 ) => {  
 
-  const setUsername:setUsername = (userID: String | String[], name: string) => {
-    const userIndex = users.findIndex(({ id }) => userID === id)
-    users[userIndex].name = name
-  } 
-
-  const renameUser = (name: string | undefined) => {
-    setUsername(socket.id, name ? name : "user");
+  const renameUser = (name: string) => {
+    users.set(socket.id, { name, id: socket.id })
   };
 
   const disconnect = (reason: string) => {
-    removeUserById(socket.id)
-    console.log('disconnecting message',users);
+    console.log(socket.data.name, 'is the user disconnected')    
+    socket.emit("room:leave")
+    removeUserById(socket.id)    
   };
 
   socket.on("user:rename", renameUser);

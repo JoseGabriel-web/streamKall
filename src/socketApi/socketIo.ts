@@ -10,21 +10,19 @@ const socketIoConfig = (server: http.Server | https.Server) => {
     },
   });
 
-  let users: userInterface[] = [];
+  let users: Map<String | string, userInterface> = new Map();
 
   const getUser: getUser = (userID: String) => {
-    const user = users.find(({ id }) => id === userID);
-    return user;
+    return users.get(userID);
   };
 
-  const createUser: createUser = (userID, name) => {
-    const user: userInterface = { name, id: userID };
-    users.push(user);
-    return user;
+  const createUser: createUser = (userID, name) => {    
+    users.set(userID, { name, id: userID })
+    return getUser(userID);
   };
 
   const removeUserById = (socketId: string) => {
-    users = users.filter(({ id }) => id !== socketId);
+    users.delete(socketId)
   };
 
   io.on("connection", (socket) => {
