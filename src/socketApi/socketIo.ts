@@ -26,7 +26,7 @@ const socketIoConfig = (server: http.Server | https.Server) => {
   };
 
   io.on("connection", (socket) => {
-    handlers({io, socket, getUser, users, createUser, removeUserById});
+    handlers({io, socket, getUser, users, createUser, removeUserById});    
     console.log("User connected");
   });
 };
